@@ -124,6 +124,6 @@ Vagrant.configure("2") do |config|
     sudo udevadm control --reload
 
     # OpenSK Setup
-    sh ./setup.sh
+    sh ./setup
   SHELL
 end
