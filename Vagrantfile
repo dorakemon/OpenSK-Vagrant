@@ -80,17 +80,17 @@ Vagrant.configure("2") do |config|
   # Enable provisioning with a shell script. Additional provisioners such as
   # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
   # documentation for more information about their specific syntax and use.
-  config.vm.provision "shell", inline: <<-SHELL
-    apt-get update
-    apt-get upgrade -y
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get upgrade -y
     # Install VirtualBox Guest Additions
-    apt-get install -y virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
+    sudo apt-get install -y virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
 
     # Install VSCode
     sudo snap install --classic code
 
     # Install build tools
-    apt-get install -y build-essential curl wget git
+    sudo apt-get install -y build-essential curl wget git
 
     # Install Rust
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -98,20 +98,20 @@ Vagrant.configure("2") do |config|
     source $HOME/.cargo/env
 
     # Install Python
-    apt-get install -y python3-pip python3-venv python3-dev
+    sudo apt-get install -y python3-pip python3-venv python3-dev
 
     # Install OpenSSL
-    apt-get install -y libssl-dev pkg-config
+    sudo apt-get install -y libssl-dev pkg-config
 
     # nrfutil for OpenSK Dongle
     pip3 install nrfutil
 
     # llvm and gcc-arm-none-eabi if you want to use the upgradability feature.
-    apt-get install -y llvm gcc-arm-none-eabi
+    sudo apt-get install -y llvm gcc-arm-none-eabi
 
     # Segger
     curl -d "accept_license_agreement=accepted&submit=Download+software" -X POST -O "https://www.segger.com/downloads/jlink/JLink_Linux_x86_64.deb"
-    dpkg -i JLink_Linux_x86_64.deb
+    sudo dpkg -i JLink_Linux_x86_64.deb
 
     # Clone Repositories
     mkdir -p ~/Work
@@ -120,8 +120,8 @@ Vagrant.configure("2") do |config|
     cd OpenSK
 
     # Additionally on Linux, you need to install a udev rule file to allow non-root users to interact with OpenSK devices. 
-    cp rules.d/55-opensk.rules /etc/udev/rules.d/
-    udevadm control --reload
+    sudo cp rules.d/55-opensk.rules /etc/udev/rules.d/
+    sudo udevadm control --reload
 
     # OpenSK Setup
     sh ./setup.sh
