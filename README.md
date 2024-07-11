@@ -20,6 +20,8 @@ Before you start, make sure you have the following software installed on your ho
 
 2. **Start the Vagrant box:**
 
+    Before starting vagrant box, please check this license of JLink SEGGER. [link](https://www.segger.com/downloads/jlink/JLink_Linux_x86_64.deb)
+
     ```sh
     vagrant up
     ```

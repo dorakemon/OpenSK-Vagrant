@@ -60,16 +60,16 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     # Display the VirtualBox GUI when booting the machine
     vb.gui = true
-  
-    # Customize the amount of memory on the VM:
-    vb.memory = "4096"
+
+    vb.memory = "8192"
+    vb.cpus = 8
+
 
     vb.customize [
       "modifyvm", :id,
       "--vram", "256", # フルスクリーンモード用
       "--clipboard", "bidirectional", # クリップボード共有
       "--draganddrop", "bidirectional", # ドラッグアンドドロップ
-      "--cpus", "4",
       "--ioapic", "on" # I/O APICを有効化
     ]
   end
@@ -82,18 +82,20 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y ubuntu-desktop
-    # Optional: Install VirtualBox Guest Additions
+    apt-get upgrade -y
+    # Install VirtualBox Guest Additions
     apt-get install -y virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
-    # Start the graphical interface
-    systemctl set-default graphical.target
-    systemctl start graphical.target
+
+    # Install VSCode
+    sudo snap install --classic code
 
     # Install build tools
     apt-get install -y build-essential curl wget git
 
     # Install Rust
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
+    source $HOME/.cargo/env
 
     # Install Python
     apt-get install -y python3-pip python3-venv python3-dev
@@ -108,20 +110,20 @@ Vagrant.configure("2") do |config|
     apt-get install -y llvm gcc-arm-none-eabi
 
     # Segger
-    wget https://www.segger.com/downloads/jlink/JLink_Linux_x86_64.deb
+    curl -d "accept_license_agreement=accepted&submit=Download+software" -X POST -O "https://www.segger.com/downloads/jlink/JLink_Linux_x86_64.deb"
     dpkg -i JLink_Linux_x86_64.deb
 
     # Clone Repositories
     mkdir -p ~/Work
     cd ~/Work
     git clone https://github.com/google/OpenSK.git
+    cd OpenSK
 
     # Additionally on Linux, you need to install a udev rule file to allow non-root users to interact with OpenSK devices. 
     cp rules.d/55-opensk.rules /etc/udev/rules.d/
     udevadm control --reload
 
     # OpenSK Setup
-    cd OpenSK
     sh ./setup.sh
   SHELL
 end
